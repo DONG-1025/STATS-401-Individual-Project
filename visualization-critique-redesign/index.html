@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualization Critique and Redesign — CalCORVID</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>Visualization Critique and Redesign</h1>
+        <p class="subtitle">CalCORVID Spatiotemporal Cluster Dashboard — A D3.js Redesign</p>
+    </header>
+
+    <nav>
+        <a href="#original">Original</a>
+        <a href="#analysis">Analysis</a>
+        <a href="#critique">Critique</a>
+        <a href="#redesign">Redesign</a>
+        <a href="#rationale">Rationale</a>
+        <a href="#references">References</a>
+    </nav>
+
+    <main>
+
+        <section id="original">
+            <h2>Original Visualization</h2>
+
+            <h3>Title and Source</h3>
+            <p>
+                <strong>CalCORVID</strong><br>
+                Source: California Department of Public Health (CDPH) Modeling Team<br>
+                Published in: CSTE Stories from the Field; <em>BMC Public Health</em>
+            </p>
+            <p>
+                <a href="https://github.com/cdphmodeling/CalCORVID" target="_blank">GitHub Repository</a>
+            </p>
+
+            <h3>Original Screenshot</h3>
+            <figure>
+                <img src="images/original-calcorvid.png" alt="Original CalCORVID dashboard" width="100%">
+                <figcaption>Figure 1. Original CalCORVID dashboard.</figcaption>
+            </figure>
+
+            <h3>Brief Introduction</h3>
+            <p>
+                CalCORVID is an open-source RShiny dashboard that visualizes spatiotemporal disease clusters
+                detected by SaTScan. The example dataset contains COVID-19 test positivity data aggregated
+                to census tracts in California, integrated with the Social Vulnerability Index (SVI).
+            </p>
+        </section>
+
+        <section id="analysis">
+            <h2>Analysis of the Original</h2>
+
+            <h3>Intended Message</h3>
+            <p>
+                The dashboard communicates whether statistically significant spatiotemporal clusters of
+                COVID-19 positivity exist in California, where they are, and what social vulnerability
+                context characterizes them.
+            </p>
+
+            <h3>Audience</h3>
+            <p>State and local public health epidemiologists.</p>
+
+            <h3>Tasks</h3>
+            <ul>
+                <li>Locate significant clusters on a map</li>
+                <li>Compare cluster size, location, and time span</li>
+                <li>Contextualize clusters using SVI tooltips</li>
+                <li>Track cluster evolution using the date dropdown</li>
+            </ul>
+        </section>
+
+        <section id="critique">
+            <h2>Critique</h2>
+
+            <h3>Strengths</h3>
+            <ol>
+                <li>Translates technical SaTScan output into an interactive spatial tool.</li>
+                <li>Integrates SVI for social determinants context.</li>
+            </ol>
+
+            <h3>Weaknesses</h3>
+            <ol>
+                <li>Circular scan windows mislead users about true cluster shape.</li>
+                <li>Randomly assigned cluster colors carry no data meaning.</li>
+                <li>Statistical uncertainty is hidden in tooltips.</li>
+            </ol>
+        </section>
+
+        <section id="redesign">
+            <h2>Redesigned Visualization</h2>
+            <p>
+                Implemented in D3.js using <code>data/CAtest_combgiscol_fnl.csv</code>. The redesign
+                uses a map-plus-detail-panel layout: the map shows cluster locations over California
+                county boundaries, and the right panel shows detailed statistics for the selected cluster.
+            </p>
+
+            <div id="dashboard">
+                <div id="map">
+                    <div id="map-controls">
+                        <button id="zoom-in" title="Zoom in">+</button>
+                        <button id="zoom-out" title="Zoom out">−</button>
+                        <button id="zoom-reset" title="Reset view">Reset</button>
+                    </div>
+                </div>
+                <div id="detail-panel">
+                    <div id="detail-placeholder">
+                        <p>Click a cluster on the map to see details.</p>
+                    </div>
+                    <div id="detail-content" style="display:none;"></div>
+                </div>
+            </div>
+
+            <div id="legend"></div>
+
+            <figure>
+                <figcaption>Figure 2. Redesigned D3.js visualization with detail panel.</figcaption>
+            </figure>
+        </section>
+
+<section class="design-decisions">
+    <h2>Design Decision 1: Map + Detail Panel Layout</h2>
+
+    <p><strong>What changed:</strong> Instead of putting all the information directly on the map, I separated the visualization into two parts: the map for location and the detail panel for statistical information.</p>
+
+    <p><strong>Why:</strong> Putting the O/E ratio, the four SVI themes, and the time span into the map markers would make the information difficult to read.</p>
+
+    <p><strong>Problem addressed:</strong> Limitation 1 — misleading cluster shapes, as well as the overall readability issue.</p>
+
+    <p><strong>How it improves the design:</strong> Users can quickly see the locations on the map and click on a cluster to view its details.</p>
+
+
+    <h2>Design Decision 2: Using a Sequential Color Scheme to Encode Recurrence Interval</h2>
+
+    <p><strong>What changed:</strong> I used a YlOrRd sequential color scale mapped to the recurrence interval instead of randomly assigning colors.</p>
+
+    <p><strong>Why:</strong> Random colors do not communicate any meaningful data information.</p>
+
+    <p><strong>Problem addressed:</strong> Limitation 2 — the colors were disconnected from the data.</p>
+
+    <p><strong>How it improves the design:</strong> Users can quickly identify and compare clusters based on the strength of the statistical evidence.</p>
+
+
+    <h2>Design Decision 3: Using Horizontal Bar Charts to Display SVI Themes</h2>
+
+    <p><strong>What changed:</strong> I displayed the four SVI themes as horizontal bar charts in the detail panel instead of placing them in tooltips.</p>
+
+    <p><strong>Why:</strong> Tooltips require hovering and disappear when the cursor moves away, making comparison difficult.</p>
+
+    <p><strong>Problem addressed:</strong> Limitation 3 — hidden statistical uncertainty and SVI context.</p>
+
+    <p><strong>How it improves the design:</strong> Users can click through different clusters and compare their SVI themes without losing the overall context.</p>
+
+
+    <h2>Original vs. Redesigned Version</h2>
+
+    <p>The redesign makes three things easier: (1) scanning cluster locations on the map, (2) clicking to view detailed statistics, and (3) comparing SVI characteristics across different clusters.</p>
+
+    <p><strong>Trade-off:</strong> The detail panel displays only one cluster at a time, so comparing multiple clusters requires clicking back and forth.</p>
+
+    <p><strong>Limitation:</strong> The dataset does not contain geometry data, so polygon boundaries cannot be displayed.</p>
+</section>
+
+        <section id="references">
+            <h2>Data Sources and References</h2>
+            <ol>
+                <li>Lu P, León T. CalCORVID. CSTE Stories from the Field.</li>
+                <li>Lu P, et al. CalCORVID. BMC Public Health, 2026.</li>
+                <li>CalCORVID GitHub: https://github.com/cdphmodeling/CalCORVID</li>
+                <li>Wang L, et al. Frontiers in Public Health, 2025;12:1432645.</li>
+                <li>Tango T. Statistical Methods in Medical Research, 2021;30(1):75-86.</li>
+            </ol>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>STATS 401 Individual Project — Visualization Critique and Redesign</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
